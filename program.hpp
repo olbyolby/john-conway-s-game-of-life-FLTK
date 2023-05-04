@@ -1,9 +1,11 @@
+#define WIN32
 #include<FL/Fl_Window.H>
 #include<FL/Fl_Menu.H>
 #include<FL/Fl_Menu_Bar.H>
 #include<FL/Fl_Menu_Button.H>
 #include<FL/Fl_Button.H>
 #include<FL/Fl_Box.H>
+#include<FL/Fl_File_Chooser.H>
 #include<FL/Fl.H>
 #include<iostream>
 #include<string>
@@ -20,6 +22,10 @@ class Program {
 
     GameOfLife* life;
     Fl_Button** cells;
+    int cellSize;
+
+    Fl_File_Chooser *chooser = nullptr;
+    std::string fileName = "";
 
     bool paused = true;
     int speed = 1.0 / 60;
@@ -28,9 +34,9 @@ class Program {
         std::cout << "WARNING: unimplamented ui object ran" << std::endl;
         
     }
+    static void loadFile(Fl_File_Chooser *browser, void *userData);
     static void cellCallback(Fl_Widget *button, void *self);
     static void updateFrame(void *userData);
-    static void updateGame(void *userData);
     void setSize();
 public:
     int start() {
@@ -52,19 +58,32 @@ public:
         toolBar->add("edit", 2, toolBar_edit->callback(),this, 1);
 
         //add options for the file sub menu
-        toolBar_file->add("load file", 0, unImplamented, this, 0);
-        toolBar_file->add("load file from", 0, unImplamented, this, 0);
+        toolBar_file->add(
+            "load file", 0,
+            [](Fl_Widget *widget, void *userData) { reinterpret_cast<Program *>(userData)->life->loadFromFile(reinterpret_cast<Program *>(userData)->fileName);},
+            this, 0);
+        toolBar_file->add(
+            "load file from", 0,
+            [](Fl_Widget *widget, void *userData){
+                auto self = reinterpret_cast<Program *>(userData);
+                if(self->chooser != nullptr) {
+                    delete self->chooser;
+                }
+                self->chooser = new Fl_File_Chooser("C:/", nullptr, 0, "pick file to load");
+                self->chooser->callback(loadFile, userData);
+                //self->chooser->type()
+                self->chooser->show();
+            }, this, 0);
         toolBar_file->add("save file", 0, unImplamented, this, 0);
         toolBar_file->add("save file as", 0, unImplamented, this, 0);
 
         //add simulation options
         toolBar_sim->add("reset", 0, unImplamented, this, 0);
         toolBar_sim->add("start", 0, unImplamented, this, 0);
-        toolBar_sim->add(
-            "step", 0, [](Fl_Widget *widget, void *self)
-            { reinterpret_cast<Program *>(self)->life->nextFrame(); },
-            this, 0);
-        toolBar_sim->add("pause", 0, 
+        toolBar_sim->add("step", FL_F+3, 
+        [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->life->nextFrame(); },
+        this, 0);
+        toolBar_sim->add("pause", FL_F+4, 
         [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->paused = !reinterpret_cast<Program *>(self)->paused; },
         this, 0);
         toolBar_sim->add("set speed", 0, unImplamented, this, 0);
@@ -84,6 +103,7 @@ public:
             cells[i]->color(FL_BLACK);
             cells[i]->callback(cellCallback, this);
         }
+        cellSize = 10 * 10;
 
         Fl::add_timeout(speed, updateFrame, this);
 

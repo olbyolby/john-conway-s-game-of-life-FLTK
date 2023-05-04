@@ -5,16 +5,21 @@
 void Program::setSize() {
     int sizeX = life->getSizeX();
     int sizeY = life->getSizeY();
-    for (int i = 0; i < sizeX*sizeY; i++) {
-        delete cells[i];
+    for (int i = 0; i < cellSize; i++) {
+        //delete cells[i];
+        //Fl::delete_widget(cells[i]);
+        cells[i]->hide();
     }
-    delete cells;
+    delete[] cells;
     cells = new Fl_Button*[sizeX*sizeY];
     for (int i = 0; i < sizeX*sizeY; i++) {
         cells[i] = new Fl_Button((i / sizeX) * 30, (i % sizeY) * 30 + 30, 30, 30, nullptr);
         cells[i]->color(FL_BLACK);
-        cells[i]->callback(cellCallback);
+        cells[i]->callback(cellCallback, this);
+        cells[i]->show();
+        mainWindow->add(cells[i]);
     }
+    cellSize = sizeX * sizeY;
 }
 void Program::updateFrame(void *userData) {
     auto self = reinterpret_cast<Program *>(userData);
@@ -50,4 +55,15 @@ void Program::cellCallback(Fl_Widget *button, void *userData) {
             //std::cout << "pause is " << (self->paused ? "true" : "false") << '\n';
         }
     }
+}
+void Program::loadFile(Fl_File_Chooser *browser, void *userData) {
+    auto self = reinterpret_cast<Program *>(userData);
+
+    //std::cout << self->chooser->value() << '\n';
+    if (self->chooser->shown() == false) {
+        self->life->loadFromFile(std::string(browser->value()));
+        self->fileName = browser->value();
+        self->setSize();
+    }
+    
 }
