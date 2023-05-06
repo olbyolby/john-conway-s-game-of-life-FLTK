@@ -2,6 +2,7 @@
 #include<string>
 #include<fstream>
 #include<sstream>
+#include <algorithm>
 
 #include"life.hpp"
 
@@ -66,30 +67,43 @@ void GameOfLife::loadFromArray(std::vector<bool> array, int sizeX, int sizeY) {
 //#include<iostream>
 void GameOfLife::loadFromFile(std::string path) {
     std::ifstream file(path);
-    std::string line;
+    std::string fileData;
+    std::ostringstream ss;
+    ss << file.rdbuf(); // reading data
+    fileData = ss.str();
+    if(fileData[fileData.length() - 1] != '\n') {fileData+='\n';}
 
-    if(!file) {
-        throw std::runtime_error("File not found");
-    }
+    sizeY = std::count(fileData.begin(), fileData.end(), '\n');
+    sizeX = fileData.substr(1, fileData.find('\n')-1).length()+1;
 
-    std::getline(file, line); sizeX = std::stoi(line);
-    std::getline(file, line); sizeY = std::stoi(line);
+    //resize buffers
+    bufferA.resize(sizeX*sizeY);
+    bufferB.resize(sizeX*sizeY);
 
-    bufferA.resize(sizeX * sizeY);
-    bufferB.resize(sizeX * sizeY);
+    //load the buffer data
+    int written = 0;
+    for(char& cur : fileData) {
+        if(cur != '\n' && cur != '\r') {
+            (*activeGameField)[written] = cur=='0'? false : true;
+            written++;
 
-    char temp;
-    for (int i = 0; i < activeGameField->size(); i++) {
-        file >> temp;
-        if (temp != '1' && temp!= '0') {
-            i--; continue;
         }
-        //std::cout << temp << std::endl;
-        (*activeGameField)[i] = temp=='1'? true : false;
     }
-    //std::cin.get();
+    if(written < sizeX * sizeY) {
+        throw std::runtime_error("file to short");
+    }
 }
+void GameOfLife::writeFile(std::string path) {
+    std::ofstream file(path);
+    //std::cout << " x: " << sizeX << '\n';
+    int ln = 1;
+    for(int i = 0; i < sizeX*sizeY; i++) {  
+        //std::cout << i << '\n';
+        file << (*activeGameField)[i]? '1' : '0';
+        if(ln == sizeX) { ln = 1; file << '\n';} else {ln++;}
 
+    }
+}
 std::string GameOfLife::printActiveField() {
     std::string output = "";
     std::cout << "field is " << std::hex << (long long)activeGameField << std::dec << '\n';

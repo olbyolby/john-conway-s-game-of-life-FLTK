@@ -1,3 +1,4 @@
+#pragma once
 #include<vector>
 #include<string>
 
@@ -17,6 +18,7 @@ public:
     void runFrames(int frames);
     void loadFromFile(std::string filePath);
     void loadFromArray(std::vector<bool> array, int sizeX, int sizeY);
+    void writeFile(std::string path);
     std::string printActiveField();
 
     std::vector<bool>* getCurrentField() { 

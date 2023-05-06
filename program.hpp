@@ -1,4 +1,8 @@
-#define WIN32
+#pragma once
+#ifndef PROGRAM_HPP
+#define PROGRAM_HPP
+
+
 #include<FL/Fl_Window.H>
 #include<FL/Fl_Menu.H>
 #include<FL/Fl_Menu_Bar.H>
@@ -9,6 +13,7 @@
 #include<FL/Fl.H>
 #include<iostream>
 #include<string>
+#include<FL/Fl_Value_Input.H>
 #include"life.hpp"
 
 class Program {
@@ -37,6 +42,7 @@ class Program {
     static void loadFile(Fl_File_Chooser *browser, void *userData);
     static void cellCallback(Fl_Widget *button, void *self);
     static void updateFrame(void *userData);
+    static void resizeButtons(Fl_) 
     void setSize();
 public:
     int start() {
@@ -74,7 +80,11 @@ public:
                 //self->chooser->type()
                 self->chooser->show();
             }, this, 0);
-        toolBar_file->add("save file", 0, unImplamented, this, 0);
+        toolBar_file->add("save file", 0, 
+            [](Fl_Widget*, void* self) {
+                reinterpret_cast<Program *>(self)->life->writeFile(reinterpret_cast<Program *>(self)->fileName);
+            }
+        , this, 0);
         toolBar_file->add("save file as", 0, unImplamented, this, 0);
 
         //add simulation options
@@ -120,3 +130,4 @@ public:
         delete life;
     }
 };
+#endif
