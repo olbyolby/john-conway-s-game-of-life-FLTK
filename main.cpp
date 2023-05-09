@@ -1,4 +1,3 @@
-
 #include"program.hpp"
 int main() {
 
@@ -8,3 +7,4 @@ int main() {
     std::cout << "FATAL EXCEPTION!\n";
 
 }
+

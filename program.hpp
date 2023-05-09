@@ -35,15 +35,34 @@ class Program {
     bool paused = true;
     int speed = 1.0 / 60;
 
+    struct gridInputData {
+        Fl_Window* window;
+        Fl_Input* xgrid;
+        Fl_Input* ygrid;
+        Fl_Button* button;
+        Program* program;
+    } *gridData = nullptr;
+    struct setSpeedData {
+        Fl_Window* window;
+        Fl_Input* speed;
+        Fl_Button* button;
+        Program* program;
+    } *speedData = nullptr;
+
     static void unImplamented(Fl_Widget* widget, void* userData) {
         std::cout << "WARNING: unimplamented ui object ran" << std::endl;
         
     }
     static void loadFile(Fl_File_Chooser *browser, void *userData);
     static void cellCallback(Fl_Widget *button, void *self);
-    static void updateFrame(void *userData);
-    static void resizeButtons(Fl_) 
+    static void nextFrame(void *userData);
+    static void renderFrame(void *userData);
+    static void resizeButtons(Fl_Widget *, void *userData); 
+    static void newGrid(Fl_Widget *, void* userData);
+    static void setSpeed(Fl_Widget *, void* userData);
+    static void saveFile(Fl_File_Chooser *browser, void *userData);
     void setSize();
+
 public:
     int start() {
         return Fl::run();
@@ -66,7 +85,16 @@ public:
         //add options for the file sub menu
         toolBar_file->add(
             "load file", 0,
-            [](Fl_Widget *widget, void *userData) { reinterpret_cast<Program *>(userData)->life->loadFromFile(reinterpret_cast<Program *>(userData)->fileName);},
+            [](Fl_Widget *widget, void *userData) {
+                try {
+                    reinterpret_cast<Program *>(userData)->life->loadFromFile(reinterpret_cast<Program *>(userData)->fileName);
+                } catch(GameOfLife::readError &e) {
+                    //alart the user
+                    fl_alert(("Error loading" + e.filename + " at location (" + std::to_string(e.positionX) + "," + std::to_string(e.positionY) + ")").c_str());
+                } catch(GameOfLife::fileNotFound &e) {
+                    fl_alert(("File " + e.filename + " not found").c_str());
+                }
+            },
             this, 0);
         toolBar_file->add(
             "load file from", 0,
@@ -80,31 +108,50 @@ public:
                 //self->chooser->type()
                 self->chooser->show();
             }, this, 0);
-        toolBar_file->add("save file", 0, 
+        toolBar_file->add("save file", FL_CTRL + 's', 
             [](Fl_Widget*, void* self) {
-                reinterpret_cast<Program *>(self)->life->writeFile(reinterpret_cast<Program *>(self)->fileName);
+                try {
+                    reinterpret_cast<Program *>(self)->life->writeFile(reinterpret_cast<Program *>(self)->fileName);
+                } catch (GameOfLife::fileNotFound &e) {
+                    fl_alert(("File " + e.filename + " not found").c_str());
+                }
             }
         , this, 0);
-        toolBar_file->add("save file as", 0, unImplamented, this, 0);
+        toolBar_file->add("save file as", 0, 
+            [](Fl_Widget *widget, void *userData){
+                auto self = reinterpret_cast<Program *>(userData);
+                if(self->chooser != nullptr) {
+                    delete self->chooser;
+                }
+                self->chooser = new Fl_File_Chooser("C:/", nullptr, 0, "pick file to load");
+                self->chooser->callback(saveFile, userData);
+                //self->chooser->type()
+                self->chooser->show();
+            }, this, 0);
 
         //add simulation options
-        toolBar_sim->add("reset", 0, unImplamented, this, 0);
-        toolBar_sim->add("start", 0, unImplamented, this, 0);
         toolBar_sim->add("step", FL_F+3, 
-        [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->life->nextFrame(); },
+            [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->life->nextFrame(); },
         this, 0);
         toolBar_sim->add("pause", FL_F+4, 
-        [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->paused = !reinterpret_cast<Program *>(self)->paused; },
+            [](Fl_Widget *widget, void *self){ reinterpret_cast<Program *>(self)->paused = !reinterpret_cast<Program *>(self)->paused; },
         this, 0);
-        toolBar_sim->add("set speed", 0, unImplamented, this, 0);
+        toolBar_sim->add("set speed", 0, setSpeed, this, 0);
 
         //development tools
         toolBar_dev->add("debug print", 0, [](Fl_Widget *widget, void *self) { std::cout << reinterpret_cast<Program *>(self)->life->printActiveField() << '\n'; }, 
         this, 0);
 
         //add edit options
-        toolBar_edit->add("new grid", 0, unImplamented, this, 0);
-        toolBar_edit->add("clear", 0, unImplamented, this, 0);
+        toolBar_edit->add("new grid", 0, newGrid, this, 0);
+        toolBar_edit->add("clear", 0, 
+            [](Fl_Widget*, void* userData) {
+                auto self = reinterpret_cast<Program *>(userData);
+                auto life = self->life;
+                for(int i = 0; i < life->getSizeX() * life->getSizeY(); i++) {
+                    (*life->getCurrentField())[i] = false;
+                }
+         }, this, 0);
 
         life = new GameOfLife(10, 10);
         cells = new Fl_Button*[10*10];
@@ -115,7 +162,8 @@ public:
         }
         cellSize = 10 * 10;
 
-        Fl::add_timeout(speed, updateFrame, this);
+        Fl::add_timeout(speed, nextFrame, this);
+        Fl::add_timeout(1.0 / 60, renderFrame, this);
 
         mainWindow->end();
         mainWindow->show();
@@ -123,11 +171,16 @@ public:
     }
     ~Program() {
         mainWindow->hide();
-        for (int i = 0; i < life->getSizeX() * life->getSizeY(); i++) {
-            delete cells[i];
-        }
         delete[] cells;
         delete life;
+        if(gridData != nullptr) {
+            gridData->window->hide();
+            delete gridData;
+        }
+        if(speedData != nullptr) {
+            speedData->window->hide();
+            delete speedData;
+        }
     }
 };
 #endif

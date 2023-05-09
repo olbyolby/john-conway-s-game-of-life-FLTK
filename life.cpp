@@ -34,7 +34,6 @@ bool GameOfLife::testCell(bool state, int neighbors) {
         return (neighbors == 3);
     }
 }
-#include<iostream>
 void GameOfLife::nextFrame() {
     //std::cout << "next frame\n";
     for(int x = 0; x < sizeX; x++) {
@@ -53,7 +52,6 @@ void GameOfLife::runFrames(int frames) {
         nextFrame();
     }
 }
-
 void GameOfLife::loadFromArray(std::vector<bool> array, int sizeX, int sizeY) {
     this->sizeX = sizeX;
     this->sizeY = sizeY;
@@ -66,7 +64,13 @@ void GameOfLife::loadFromArray(std::vector<bool> array, int sizeX, int sizeY) {
 
 //#include<iostream>
 void GameOfLife::loadFromFile(std::string path) {
+    std::vector<bool> backup = *activeGameField;
+
     std::ifstream file(path);
+    if(!file) {
+        throw fileNotFound(path);
+    }
+
     std::string fileData;
     std::ostringstream ss;
     ss << file.rdbuf(); // reading data
@@ -90,11 +94,15 @@ void GameOfLife::loadFromFile(std::string path) {
         }
     }
     if(written < sizeX * sizeY) {
-        throw std::runtime_error("file to short");
+        //load a copy to prevent data corruption
+        *activeGameField = backup;
+        hiddenGameField->resize(activeGameField->size());
+        throw readError("unable to read, data uneven", path, int(written / sizeX), written % sizeY);
     }
 }
 void GameOfLife::writeFile(std::string path) {
     std::ofstream file(path);
+    if(!file) { throw fileNotFound("file not found");}
     //std::cout << " x: " << sizeX << '\n';
     int ln = 1;
     for(int i = 0; i < sizeX*sizeY; i++) {  
@@ -122,6 +130,13 @@ std::string GameOfLife::printActiveField() {
     }
     return output;
 }
+
+void GameOfLife::setSize(int x, int y) {
+    sizeX = x; sizeY = y;
+    bufferA.resize(x*y);
+    bufferB.resize(x*y);
+}
+
 GameOfLife::GameOfLife(int x, int y) {
     activeGameField = &bufferA;
     hiddenGameField = &bufferB;
