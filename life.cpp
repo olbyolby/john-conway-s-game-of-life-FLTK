@@ -2,7 +2,8 @@
 #include<string>
 #include<fstream>
 #include<sstream>
-#include <algorithm>
+#include<algorithm>
+#include<assert.h>
 
 #include"life.hpp"
 
@@ -132,6 +133,9 @@ std::string GameOfLife::printActiveField() {
 }
 
 void GameOfLife::setSize(int x, int y) {
+    if(x < 0 || y < 0) {
+        throw std::invalid_argument("x or y value is negitive");
+    }
     sizeX = x; sizeY = y;
     bufferA.resize(x*y);
     bufferB.resize(x*y);

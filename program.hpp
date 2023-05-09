@@ -91,9 +91,12 @@ public:
                 } catch(GameOfLife::readError &e) {
                     //alart the user
                     fl_alert(("Error loading" + e.filename + " at location (" + std::to_string(e.positionX) + "," + std::to_string(e.positionY) + ")").c_str());
+                    return;
                 } catch(GameOfLife::fileNotFound &e) {
                     fl_alert(("File " + e.filename + " not found").c_str());
+                    return;
                 }
+                reinterpret_cast<Program *>(userData)->setSize();
             },
             this, 0);
         toolBar_file->add(

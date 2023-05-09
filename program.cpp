@@ -129,7 +129,11 @@ void Program::newGrid(Fl_Widget* widget, void *userData) {
             y = std::stoi(data->ygrid->value());
         } catch (std::invalid_argument &e) {
             std::cout << "Pleace enter a valid size" << std::endl;
-            fl_alert("pleace enter a valid size");
+            fl_alert("Pleace enter a valid size");
+            return;
+        }
+        if(x < 0 || y < 0) {
+            fl_alert("Pleace enter a valid size");
             return;
         }
 
@@ -176,6 +180,10 @@ void Program::setSpeed(Fl_Widget* widget, void* userData) {
             newSpeed = std::stoi(data->speed->value());
         } catch (std::invalid_argument &e) {
             std::cout << "Pleace enter a valid speed" << std::endl;
+            fl_alert("pleace enter a valid speed");
+            return;
+        }
+        if(newSpeed < 0) {
             fl_alert("pleace enter a valid speed");
             return;
         }
