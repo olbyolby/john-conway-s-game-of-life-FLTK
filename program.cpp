@@ -11,6 +11,7 @@ void Program::setSize() {
         //delete cells[i];
         //Fl::delete_widget(cells[i]);
         cells[i]->hide();
+        cells[i]->~Fl_Button();
     }
     delete[] cells;
     cells = new Fl_Button*[sizeX*sizeY];
@@ -20,6 +21,7 @@ void Program::setSize() {
             cells[y*sizeX + x]->color(FL_BLACK);
             cells[y*sizeX + x]->callback(cellCallback, this);
             cells[y*sizeX + x]->show();
+            //cells[y*sizeX + x]->box(FL_BORDER_BOX);
             mainWindow->add(cells[y*sizeX + x]);
         }
     }
@@ -128,7 +130,7 @@ void Program::newGrid(Fl_Widget* widget, void *userData) {
             x = std::stoi(data->xgrid->value());
             y = std::stoi(data->ygrid->value());
         } catch (std::invalid_argument &e) {
-            std::cout << "Pleace enter a valid size" << std::endl;
+            //std::cout << "Pleace enter a valid size" << std::endl;
             fl_alert("Pleace enter a valid size");
             return;
         }
@@ -179,7 +181,7 @@ void Program::setSpeed(Fl_Widget* widget, void* userData) {
         try {
             newSpeed = std::stoi(data->speed->value());
         } catch (std::invalid_argument &e) {
-            std::cout << "Pleace enter a valid speed" << std::endl;
+            //std::cout << "Pleace enter a valid speed" << std::endl;
             fl_alert("pleace enter a valid speed");
             return;
         }

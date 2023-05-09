@@ -115,7 +115,7 @@ void GameOfLife::writeFile(std::string path) {
 }
 std::string GameOfLife::printActiveField() {
     std::string output = "";
-    std::cout << "field is " << std::hex << (long long)activeGameField << std::dec << '\n';
+    //std::cout << "field is " << std::hex << (long long)activeGameField << std::dec << '\n';
     for(int x = 0; x < sizeX; x++) {
         for(int y = 0; y < sizeY; y++) {
             output += (*activeGameField)[y*sizeX + x]? "[]" : "  ";

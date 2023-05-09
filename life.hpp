@@ -1,8 +1,9 @@
 #pragma once
 #include<vector>
 #include<string>
+#include<exception>
+#include<stdexcept>
 
-#include<iostream>
 class GameOfLife {
     std::vector<bool> bufferA, bufferB;
 

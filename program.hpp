@@ -11,7 +11,6 @@
 #include<FL/Fl_Box.H>
 #include<FL/Fl_File_Chooser.H>
 #include<FL/Fl.H>
-#include<iostream>
 #include<string>
 #include<FL/Fl_Value_Input.H>
 #include"life.hpp"
@@ -50,7 +49,7 @@ class Program {
     } *speedData = nullptr;
 
     static void unImplamented(Fl_Widget* widget, void* userData) {
-        std::cout << "WARNING: unimplamented ui object ran" << std::endl;
+        fl_alert("WHAT THE HELL!","If this runs something has gone horribly wrong, report to developer");
         
     }
     static void loadFile(Fl_File_Chooser *browser, void *userData);
@@ -142,8 +141,7 @@ public:
         toolBar_sim->add("set speed", 0, setSpeed, this, 0);
 
         //development tools
-        toolBar_dev->add("debug print", 0, [](Fl_Widget *widget, void *self) { std::cout << reinterpret_cast<Program *>(self)->life->printActiveField() << '\n'; }, 
-        this, 0);
+
 
         //add edit options
         toolBar_edit->add("new grid", 0, newGrid, this, 0);
@@ -162,6 +160,7 @@ public:
             cells[i] = new Fl_Button((i / 10) * 30, (i % 10) * 30 + 30, 30, 30, nullptr);
             cells[i]->color(FL_BLACK);
             cells[i]->callback(cellCallback, this);
+            //cells[i]->box(FL_BORDER_BOX);
         }
         cellSize = 10 * 10;
 
