@@ -11,9 +11,9 @@ Other then that it's wrriten in pure c++
 ## compiling
 I didn't use any build system, I used only gcc directly  
 The command I used looked like this:  
-` g++ life.cpp main.cpp program.cpp -o {output filepath} -L"{fltk parent directory}" -lfltk -I"{fltk include path}"  
-and if on windows add the following to prevent command prompt opening  
-` -Wl,-subsystem,windows  
+` g++ life.cpp main.cpp program.cpp -o {output filepath} -L"{fltk parent directory}" -lfltk -I"{fltk include path}"  `  
+and if on windows add the following to prevent command prompt opening:  
+` -Wl,-subsystem,windows  `
 
 
 ## file format
