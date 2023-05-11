@@ -22,7 +22,7 @@ class Program {
     Fl_Menu_Button* toolBar_file;
     Fl_Menu_Button* toolBar_edit;
     Fl_Menu_Button* toolBar_sim;
-    Fl_Menu_Button* toolBar_dev;
+    Fl_Button* toolBar_dev;
 
     GameOfLife* life;
     Fl_Button** cells;
@@ -74,7 +74,7 @@ public:
         toolBar_file = new Fl_Menu_Button(0, 0, width/10, 30, "file");
         toolBar_edit = new Fl_Menu_Button(200, 0, width/10, 30, "edit");
         toolBar_sim = new Fl_Menu_Button(100, 0, width/10, 30, "sim");
-        toolBar_dev = new Fl_Menu_Button(300, 0, width/10, 30, "dev");
+        toolBar_dev = new Fl_Button(300, 0, width/10, 30, "dev");
 
         //add menu opations to the tool bar
         toolBar->add("file", 0, toolBar_file->callback(),this, 0);
@@ -141,7 +141,9 @@ public:
         toolBar_sim->add("set speed", 0, setSpeed, this, 0);
 
         //development tools
-
+        toolBar_dev->callback([](Fl_Widget*, void*) {
+            
+        });
 
         //add edit options
         toolBar_edit->add("new grid", 0, newGrid, this, 0);

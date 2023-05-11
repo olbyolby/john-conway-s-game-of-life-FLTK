@@ -23,3 +23,4 @@ A line can be any length and you can have anynumber of lines, the program will c
 Their should be an extra new line at the end of the file so the size can be properly read  
 You should also make sure to use linux line endings because if window line endings are used("\n\r") it will over estamte the file size  
 I will hopefuly fix that latter.  
+The grid is stored sideways, with the top left corner being in the bottom left corner

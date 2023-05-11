@@ -8,15 +8,21 @@
 #include"life.hpp"
 
 int GameOfLife::getNeighbors(int x, int y) {
+    //calculate the number of neighbors a cell and sated index has
+    //we check the value of every cell touching the current cell and add all the live ones together
     int neighbors = 0;
+
+    //check the row below the current cell
     if(y - 1 >= 0) {
         if(x - 1 >= 0) {neighbors += (*activeGameField)[((y-1)*sizeX) + (x-1)];}
         neighbors += (*activeGameField)[((y-1)*sizeX) + (x)];
         if(x + 1 < sizeY) neighbors += (*activeGameField)[((y-1)*sizeX) + (x+1)];
     }
+    //check the row of the current cell
     neighbors += (*activeGameField)[y*sizeX + (x-1)];
     neighbors += (*activeGameField)[y*sizeX + (x+1)];
     
+    //check the row above the current cell
     if(y+1 < sizeY) {
         if(x - 1 >= 0) {neighbors += (*activeGameField)[((y+1)*sizeX) + (x-1)];}
         neighbors += (*activeGameField)[((y+1)*sizeX) + (x)];
@@ -62,8 +68,6 @@ void GameOfLife::loadFromArray(std::vector<bool> array, int sizeX, int sizeY) {
       (*activeGameField)[i] = array[i];
     }
 };
-
-//#include<iostream>
 void GameOfLife::loadFromFile(std::string path) {
     std::vector<bool> backup = *activeGameField;
 
@@ -104,10 +108,8 @@ void GameOfLife::loadFromFile(std::string path) {
 void GameOfLife::writeFile(std::string path) {
     std::ofstream file(path);
     if(!file) { throw fileNotFound("file not found");}
-    //std::cout << " x: " << sizeX << '\n';
     int ln = 1;
     for(int i = 0; i < sizeX*sizeY; i++) {  
-        //std::cout << i << '\n';
         file << (*activeGameField)[i]? '1' : '0';
         if(ln == sizeX) { ln = 1; file << '\n';} else {ln++;}
 
@@ -115,11 +117,9 @@ void GameOfLife::writeFile(std::string path) {
 }
 std::string GameOfLife::printActiveField() {
     std::string output = "";
-    //std::cout << "field is " << std::hex << (long long)activeGameField << std::dec << '\n';
     for(int x = 0; x < sizeX; x++) {
         for(int y = 0; y < sizeY; y++) {
             output += (*activeGameField)[y*sizeX + x]? "[]" : "  ";
-            //std::cout << "X: " << x << " Y: " << y << " state: " << (*activeGameField)[y*sizeX + x] << std::endl;
         }
         output += "|\n";
 
