@@ -68,7 +68,7 @@ public:
     }
     Program(int width, int hight) {
         resizingBox = new Fl_Box(0, 30, width, hight - 30, "program::reszingBox");
-        mainWindow = new Fl_Window(0, 0, width, hight, "program::mainWindow");
+        mainWindow = new Fl_Window(0, 0, width, hight, "John Conway's game of life: FLTK");
         mainWindow->resizable(resizingBox);
         toolBar = new Fl_Menu_Bar(0, 0, width, 30, "program::toolBar");
         toolBar_file = new Fl_Menu_Button(0, 0, width/10, 30, "file");
