@@ -4,6 +4,7 @@
 #include<sstream>
 #include<algorithm>
 #include<assert.h>
+#include<iostream>
 
 #include"life.hpp"
 
@@ -12,22 +13,16 @@ int GameOfLife::getNeighbors(int x, int y) {
     //we check the value of every cell touching the current cell and add all the live ones together
     int neighbors = 0;
 
-    //check the row below the current cell
-    if(y - 1 >= 0) {
-        if(x - 1 >= 0) {neighbors += (*activeGameField)[((y-1)*sizeX) + (x-1)];}
-        neighbors += (*activeGameField)[((y-1)*sizeX) + (x)];
-        if(x + 1 < sizeY) neighbors += (*activeGameField)[((y-1)*sizeX) + (x+1)];
-    }
-    //check the row of the current cell
-    neighbors += (*activeGameField)[y*sizeX + (x-1)];
-    neighbors += (*activeGameField)[y*sizeX + (x+1)];
-    
-    //check the row above the current cell
-    if(y+1 < sizeY) {
-        if(x - 1 >= 0) {neighbors += (*activeGameField)[((y+1)*sizeX) + (x-1)];}
-        neighbors += (*activeGameField)[((y+1)*sizeX) + (x)];
-        if(x + 1 < sizeY) neighbors += (*activeGameField)[((y+1)*sizeX) + (x+1)];
-    }
+    // Iterate over every X value, checking for bounds. (x+2 is done to account for the less than)
+    for (int ix = std::max(0, x-1); ix < std::min(x+2, sizeX); ix++) {
+        // Itreate over every Y value within the current column
+        for (int iy = std::max(0, y-1); iy < std::min(y+2, sizeY); iy++) {
+            // Skip the center cell(A cell isn't it's own neighbor) and only count living cells
+            if (!(ix == x && iy == y) && (*this->activeGameField)[sizeX*iy + ix] == true) {
+                neighbors += 1;
+            };
+        };
+    };
 
     return neighbors;
     
@@ -43,6 +38,7 @@ bool GameOfLife::testCell(bool state, int neighbors) {
 }
 void GameOfLife::nextFrame() {
     //std::cout << "next frame\n";
+
     for(int x = 0; x < sizeX; x++) {
         for(int y = 0; y < sizeY; y++) {
             (*hiddenGameField)[y*sizeX + x] = testCell((*activeGameField)[y*sizeX + x],getNeighbors(x, y));

@@ -1,8 +1,10 @@
-#include<FL/Fl.H>
+#define _CRT_FUNCTIONS_REQUIRED  1
+
 #include<FL/Fl_Window.H>
 #include<FL/fl_ask.H>
 #include<FL/Fl_Output.H>
 #include "program.hpp"
+#include<optional>
 
 void Program::setSize() {
     int sizeX = life->getSizeX();
@@ -101,6 +103,19 @@ void Program::saveFile(Fl_File_Chooser *browser, void *userData) {
     }
     
 }
+
+
+std::optional<int> string_to_int(const std::string& str) {
+    int value = 0;
+    for(auto digit : str) {
+        if ('0' <= digit && digit <= '9') {
+            value = value * 10 + (digit - '0');
+        } else {
+            return std::nullopt;
+        };
+    };
+    return value;
+};
 void Program::newGrid(Fl_Widget* widget, void *userData) {
     auto self = reinterpret_cast<Program *>(userData);
 
@@ -111,9 +126,9 @@ void Program::newGrid(Fl_Widget* widget, void *userData) {
 
     auto data = new gridInputData();
     data->program = self;
-    data->window = new Fl_Window(256, 128, "enter grid size");
-    data->xgrid = new Fl_Input(64, 0, 256 - 64, 32, "x value");
-    data->ygrid = new Fl_Input(64, 32, 256 - 64, 32, "y value");
+    data->window = new Fl_Window(256, 128, "Enter grid size");
+    data->xgrid = new Fl_Input(64, 0, 256 - 64, 32, "Length(X)");
+    data->ygrid = new Fl_Input(64, 32, 256 - 64, 32, "Height(Y)");
     data->button = new Fl_Button(0, 128-32, 128, 32, "create");
     self->gridData = data;
 
@@ -125,25 +140,19 @@ void Program::newGrid(Fl_Widget* widget, void *userData) {
         auto self = reinterpret_cast<Program *>(userData);
         auto data = self->gridData;
 
-        int x, y;
-        try {
-            x = std::stoi(data->xgrid->value());
-            y = std::stoi(data->ygrid->value());
-        } catch (std::invalid_argument &e) {
-            //std::cout << "Pleace enter a valid size" << std::endl;
-            fl_alert("Pleace enter a valid size");
-            return;
-        }
-        if(x < 0 || y < 0) {
-            fl_alert("Pleace enter a valid size");
-            return;
+        auto x = string_to_int(data->xgrid->value());
+        auto y = string_to_int(data->ygrid->value());
+        if (x && y) {
+            self->life->setSize(*x, *y);
+            self->setSize();
+            data->window->hide();
+            delete data;
+            self->gridData = nullptr;
+        } else {
+            fl_alert("Please enter a valid number");
         }
 
-        self->life->setSize(x, y);
-        self->setSize();
-        data->window->hide();
-        delete data;
-        self->gridData = nullptr;
+        
     };
     auto closeCallback = [](Fl_Widget* window, void* userData) {
         auto self = reinterpret_cast<Program *>(userData);
